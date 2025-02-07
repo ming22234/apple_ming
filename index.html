@@ -182,7 +182,10 @@
             score = 0;
             scoreDisplay.textContent = score;
             generateGameBoard();
+            gameContainer.style.pointerEvents = 'auto'; // 이벤트 활성화 
             startButton.style.display = 'block';
+
+            document.addEventListener('mouseup', endSelection); // 마우스 이벤트 리스너 추가
         }
 
         function generateGameBoard() {
