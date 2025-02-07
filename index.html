@@ -15,13 +15,13 @@
             margin: 0;
             background-color: #f9f9f9;
         }
-        .header {
+      .header {
             display: grid;
-            grid-template-columns: repeat(2, auto);
+            grid-template-columns: repeat(3, auto);
             gap: 10px;
             margin-bottom: 20px;
         }
-        .header div {
+      .header div {
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -35,13 +35,25 @@
             width: 100px;
             text-align: center;
         }
-        .header span {
+      .header span {
             font-size: 24px;
             font-weight: bold;
             color: #4caf50;
             margin-top: 5px;
         }
-        .game-container {
+      .pause-button {
+            width: 80px;
+            height: 80px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            visibility: hidden; /* Start 버튼 클릭 전 숨기기 */
+        }
+      .pause-button canvas {
+            width: 100%;
+            height: 100%;
+        }
+      .game-container {
             display: grid;
             grid-template-columns: repeat(17, 50px);
             grid-gap: 2px;
@@ -49,8 +61,9 @@
             padding: 10px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            visibility: hidden; /* Start 버튼을 누르기 전까지 게임 판 숨기기 */
         }
-        .cell {
+      .cell {
             width: 50px;
             height: 50px;
             display: flex;
@@ -65,16 +78,16 @@
             cursor: pointer;
             user-select: none;
         }
-        .cell.selected {
+      .cell.selected {
             background-color: #ffeb3b;
             color: #000;
         }
-        .cell.empty {
+      .cell.empty {
             background-color: transparent;
             border: none;
             cursor: default;
         }
-        .start-button, .restart-button {
+      .start-button,.restart-button {
             padding: 12px 30px;
             font-size: 18px;
             background-color: #4caf50;
@@ -86,17 +99,17 @@
             transition: background-color 0.3s ease, transform 0.2s ease;
             margin-top: 10px;
         }
-        .start-button:hover, .restart-button:hover {
+      .start-button:hover,.restart-button:hover {
             background-color: #45a047;
             transform: scale(1.05);
         }
-        .overlay {
-            position: absolute;
+      .overlay {
+            position: fixed; /* fixed로 변경 */
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(255, 255, 255, 1); /* 반투명 배경 */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -107,11 +120,28 @@
             z-index: 10;
             visibility: hidden;
         }
-        .overlay .restart-button {
+      .popup { /* 팝업 창 스타일 */
+            background-color: #fff;
+            color: #000;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 1);
+        }
+      .popup button { /* 팝업 버튼 스타일 */
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+      .overlay.restart-button {
             background-color: #ffc107;
             color: #000;
         }
-        .overlay .restart-button:hover {
+      .overlay.restart-button:hover {
             background-color: #ffca28;
         }
     </style>
@@ -126,13 +156,20 @@
             남은 시간
             <span id="timer">2:00</span>
         </div>
+        <button class="pause-button" id="pause-button" style="width: 80px; height: 80px;">
+            <canvas id="pause-canvas" width="80" height="80"></canvas>
+        </button>
     </div>
     <button class="start-button" id="start-button">Start</button>
     <div class="game-container" id="game-container"></div>
     <div class="overlay" id="overlay">
-        <div id="final-score"></div>
-        <button class="restart-button" id="restart-button" onclick="restartGame()">다시하기</button>
+        <div class="popup">
+            <div id="final-score"></div>
+            <button class="restart-button" id="restart-button" onclick="restartGame()">다시하기</button>
+            <button id="resume-button">재개하기</button>
+        </div>
     </div>
+    <div class="version">v.0.0.4</div>
 
     <script>
         const rows = 10;
@@ -140,23 +177,67 @@
         const gameContainer = document.getElementById('game-container');
         const scoreDisplay = document.getElementById('score');
         const startButton = document.getElementById('start-button');
+        const pauseButton = document.getElementById('pause-button');
+        const pauseCanvas = document.getElementById('pause-canvas');
+        const ctx = pauseCanvas.getContext('2d');
+
+        // 캔버스 크기 조정
+        pauseCanvas.width = 80;  // 원하는 가로 크기
+        pauseCanvas.height = 80; // 원하는 세로 크기
+
+        // 일시정지 아이콘 그리기
+        function drawPauseIcon() {
+            ctx.clearRect(0, 0, pauseCanvas.width, pauseCanvas.height); // 기존 아이콘 지우기
+            ctx.fillStyle = 'black';
+            const barWidth = 12; // 막대 두께 조정
+            const barHeight = 30; // 막대 높이 조정
+            const barSpacing = 15; // 막대 간격 조정
+            const centerX = pauseCanvas.width / 2;
+            const centerY = pauseCanvas.height / 2;
+
+            ctx.fillRect(centerX - barWidth - barSpacing / 2, centerY - barHeight / 2, barWidth, barHeight);
+            ctx.fillRect(centerX + barSpacing / 2, centerY - barHeight / 2, barWidth, barHeight);
+        }
+        drawPauseIcon();
+
+        startButton.addEventListener('click', () => {
+            startButton.style.display = 'none';
+            gameContainer.style.visibility = 'visible'; // 게임 판 표시
+            pauseButton.style.visibility = 'visible'; // 일시정지 버튼 보이기
+            startTimer();
+        });
+
+        const popup = document.querySelector('.popup');
+        const resumeButton = document.getElementById('resume-button');
+        let isPaused = false;
+        let timeLeft = 120; // 게임 시간 변수 추가 (초기값 2분)
+        let timer;
+
+        pauseButton.addEventListener('click', () => {
+            clearInterval(timer); // 타이머 멈춤
+            overlay.style.visibility = 'visible'; // 팝업 표시
+            popup.style.visibility = 'visible';
+            isPaused = true;
+        });
+
+        resumeButton.addEventListener('click', () => {
+            startTimer(); // 타이머 재개
+            overlay.style.visibility = 'hidden'; // 팝업 숨김
+            popup.style.visibility = 'hidden';
+            isPaused = false;
+        });
+
         const timerDisplay = document.getElementById('timer');
         const overlay = document.getElementById('overlay');
         const finalScoreDisplay = document.getElementById('final-score');
         let score = 0;
-        let timer;
         let isDragging = false;
         let startCell = null;
         let currentCell = null;
 
-        startButton.addEventListener('click', () => {
-            startButton.style.display = 'none';
-            gameContainer.style.visibility = 'visible';
-            startTimer();
-        });
-
         function startTimer() {
-            let timeLeft = 120;
+            clearInterval(timer); // 기존 타이머 제거 (혹시 실행 중일 경우)
+
             timer = setInterval(() => {
                 timeLeft--;
                 const minutes = Math.floor(timeLeft / 60);
@@ -178,14 +259,19 @@
 
         function restartGame() {
             overlay.style.visibility = 'hidden';
+            popup.style.visibility = 'hidden'; // 팝업 닫기
             gameContainer.innerHTML = '';
             score = 0;
             scoreDisplay.textContent = score;
-            generateGameBoard();
-            gameContainer.style.pointerEvents = 'auto'; // 이벤트 활성화 
-            startButton.style.display = 'block';
-
-            document.addEventListener('mouseup', endSelection); // 마우스 이벤트 리스너 추가
+            gameContainer.style.pointerEvents = 'auto';
+            startButton.style.display = 'block'; // Start 버튼 표시
+            gameContainer.style.visibility = 'hidden'; // 게임 판 숨기기
+            timerDisplay.textContent = '2:00';
+            clearInterval(timer);
+            timeLeft = 120; // 남은 시간 초기화
+            isPaused = false;
+            generateGameBoard(); // 게임 보드 재생성
+            document.addEventListener('mouseup', endSelection);
         }
 
         function generateGameBoard() {
@@ -223,7 +309,7 @@
             isDragging = false;
 
             const selectedCells = Array.from(document.querySelectorAll('.cell.selected'));
-            const validCells = selectedCells.filter(cell => !cell.classList.contains('empty'));
+            const validCells = selectedCells.filter(cell =>!cell.classList.contains('empty'));
             const sum = validCells.reduce((acc, cell) => acc + parseInt(cell.dataset.value), 0);
 
             if (sum === 10) {
