@@ -222,7 +222,7 @@
             <button class="restart-button" id="result-restart-button">다시하기</button>
         </div>
     </div>
-    <div class="version" style="margin-top: 20px;">v.0.0.5</div>
+    <div class="version" style="margin-top: 20px;">v.0.0.6</div>
 
     <script>
         const rows = 10;
@@ -346,21 +346,28 @@
 
                 cell.addEventListener('mousedown', startSelection);
                 cell.addEventListener('mouseenter', continueSelection);
+                // 터치 이벤트 추가
+                cell.addEventListener('touchstart', startSelection);
+                cell.addEventListener('touchmove', continueSelection);
                 gameContainer.appendChild(cell);
             }
 
             document.addEventListener('mouseup', endSelection);
+            // 터치 이벤트 추가
+            document.addEventListener('touchend', endSelection);
         }
 
         function startSelection(event) {
             isDragging = true;
-            startCell = event.target;
+            // 터치 이벤트 처리
+            startCell = event.type === 'touchstart'? event.targetTouches.target: event.target;
             highlightRectangle(startCell, startCell);
         }
 
         function continueSelection(event) {
             if (!isDragging) return;
-            currentCell = event.target;
+            // 터치 이벤트 처리
+            currentCell = event.type === 'touchmove'? event.targetTouches.target: event.target;
             highlightRectangle(startCell, currentCell);
         }
 
