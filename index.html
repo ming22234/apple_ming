@@ -19,7 +19,8 @@
 
         .header {
             display: grid;
-            grid-template-columns: repeat(3, auto);
+            grid-template-columns: repeat(4, auto);
+            /* BGM 버튼 추가를 위해 4개의 열로 변경 */
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -56,7 +57,8 @@
             /* Start 버튼 클릭 전 숨기기 */
         }
 
-        .pause-button canvas {
+        .pause-button canvas,
+        .bgm-button canvas {
             width: 100%;
             height: 100%;
         }
@@ -203,6 +205,10 @@
             남은 시간
             <span id="timer">2:00</span>
         </div>
+        <button class="bgm-button" id="bgm-button" style="width: 80px; height: 80px;">
+            <canvas id="bgm-canvas" width="80" height="80"></canvas>
+        </button>
+
         <button class="pause-button" id="pause-button" style="width: 80px; height: 80px;">
             <canvas id="pause-canvas" width="80" height="80"></canvas>
         </button>
@@ -222,7 +228,7 @@
             <button class="restart-button" id="result-restart-button">다시하기</button>
         </div>
     </div>
-    <div class="version" style="margin-top: 20px;">v.0.0.6</div>
+    <div class="version" style="margin-top: 20px;">v.0.0.7</div>
 
     <script>
         const rows = 10;
@@ -255,8 +261,55 @@
             startButton.style.display = 'none';
             gameContainer.style.visibility = 'visible';
             pauseButton.style.visibility = 'visible';
+            bgmButton.style.visibility = 'visible'; // BGM 버튼 보이기
             startTimer();
         });
+
+
+        const bgmButton = document.getElementById('bgm-button');
+        const bgmCanvas = document.getElementById('bgm-canvas');
+        const bgmCtx = bgmCanvas.getContext('2d');
+
+        let isBgmPlaying = true; // BGM 재생 상태 변수
+        const bgmAudio = new Audio('bgm.mp3'); // BGM 파일 경로
+        bgmAudio.loop = true; // BGM 반복 재생 설정
+        bgmAudio.play(); // 페이지 로드 시 BGM 재생
+
+        function drawBgmIcon(isPlaying) {
+            bgmCtx.clearRect(0, 0, bgmCanvas.width, bgmCanvas.height);
+            bgmCtx.fillStyle = isPlaying? 'black': 'red'; // BGM 재생 상태에 따라 색상 변경
+            // BGM 아이콘 그리기 (스피커 모양)
+            bgmCtx.beginPath();
+            bgmCtx.moveTo(50, 30);
+            bgmCtx.lineTo(20, 10);
+            bgmCtx.lineTo(20, 50);
+            bgmCtx.lineTo(50, 30);
+            bgmCtx.closePath();
+            bgmCtx.fill();
+            // 음소거 시 X 표시 추가
+            if (!isPlaying) {
+                bgmCtx.strokeStyle = 'white';
+                bgmCtx.lineWidth = 5;
+                bgmCtx.beginPath();
+                bgmCtx.moveTo(25, 15);
+                bgmCtx.lineTo(45, 35);
+                bgmCtx.moveTo(45, 15);
+                bgmCtx.lineTo(25, 35);
+                bgmCtx.stroke();
+            }
+        }
+        drawBgmIcon(isBgmPlaying);
+
+        bgmButton.addEventListener('click', () => {
+            isBgmPlaying =!isBgmPlaying; // BGM 재생 상태 토글
+            if (isBgmPlaying) {
+                bgmAudio.play(); // BGM 재생
+            } else {
+                bgmAudio.pause(); // BGM 일시 정지
+            }
+            drawBgmIcon(isBgmPlaying); // BGM 아이콘 업데이트
+        });
+
 
         const pauseOverlay = document.getElementById('pause-overlay');
         const resultOverlay = document.getElementById('result-overlay');
