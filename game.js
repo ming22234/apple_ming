@@ -9,9 +9,13 @@ async function submitScore() {
 
     let response = await fetch(API_URL, {
         method: "POST",
+        mode: "cors",  // CORS 허용 모드 추가
         body: JSON.stringify({ username, score }),
         headers: { "Content-Type": "application/json" }
-    });
+    })
+    .then(response => response.text())
+    .then(data => console.log("Server response:", data))
+    .catch(error => console.error("Error:", error));
 
     if (response.ok) {
         alert("점수가 저장되었습니다!");
