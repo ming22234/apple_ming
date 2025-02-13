@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbxwtdkqmNF29HoF4SlcTTQm0_ZMrvNQe-JSBLcMobOVisxjb1QyNxb4kzVQhB2nwZqnzQ/exec"; // Google Apps Script 웹 앱 URL
+const API_URL = "https://script.google.com/macros/s/AKfycbzJWK6VYP3ZmpLq035dB-ob6IEF0_tcRjwlCw-J2tZwQO8BMYPa7v4RxGRcHpDcD62lkw/exec"; // Google Apps Script 웹 앱 URL
 
 // 점수 제출 함수
 async function submitScore() {
@@ -9,14 +9,14 @@ async function submitScore() {
 
     let response = await fetch(API_URL, {
         method: "POST",
-        mode: "no-cors",  // CORS 정책을 우회하기 위해 "no-cors" 설정
+        mode: "cors",  // CORS 허용 모드 추가
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({ username, score })
-        
     })
-    .then(response => console.log("Server response:", response))
+    .then(response => response.text())
+    .then(data => console.log("Server response:", data))
     .catch(error => console.error("Error:", error));
 
     if (response.ok) {
@@ -28,7 +28,13 @@ async function submitScore() {
 
 // 랭킹 조회 함수
 async function fetchLeaderboard() {
-    let response = await fetch(API_URL);
+    let response = await fetch(API_URL, {
+        method: "GET",
+        mode: "cors"
+    })
+    .then(response => response.json())
+    .then(data => console.log("Leaderboard:", data))
+    .catch(error => console.error("Error:", error));
     let leaderboard = await response.json();
     let list = document.getElementById("leaderboard");
 
