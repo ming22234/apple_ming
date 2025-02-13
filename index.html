@@ -338,12 +338,17 @@
         const bgmAudio = new Audio('bgm.mp3'); // BGM 파일 경로
         bgmAudio.loop = true; // BGM 반복 재생 설정
 
-        document.addEventListener("click", function() {
-            if (bgmAudio.paused) {
-                bgmAudio.play().catch(error => console.log("Autoplay blocked:", error));
-            }
+        document.addEventListener("DOMContentLoaded", function() {
+            bgmButton.addEventListener('click', () => {
+                isBgmPlaying = !isBgmPlaying;
+                if (isBgmPlaying) {
+                    bgmAudio.play();
+                } else {
+                    bgmAudio.pause();
+                }
+                drawBgmIcon(isBgmPlaying);
+            });
         });
-
 
         function drawBgmIcon(isPlaying) {
             bgmCtx.clearRect(0, 0, bgmCanvas.width, bgmCanvas.height);
