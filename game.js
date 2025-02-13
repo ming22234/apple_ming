@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwoQMx4zYm7wSNE8pcBnp4AZrVGOCBDDMgSv_AYkmChg4K5-ADdBBN6ezhpLi46tXoUWg/exec"; // Google Apps Script 웹 앱 URL
+const API_URL = "https://script.google.com/macros/s/AKfycbwH5AVROp0VJL0voxdV0xQ2A0ZWIQU_8Yu0wO8mZMOVs1kXz0sDe1jeFYO7S7Yo8FuOVQ/exec"; // Google Apps Script 웹 앱 URL
 
 // 점수 제출 함수
 async function submitScore() {
