@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwH5AVROp0VJL0voxdV0xQ2A0ZWIQU_8Yu0wO8mZMOVs1kXz0sDe1jeFYO7S7Yo8FuOVQ/exec"; // Google Apps Script 웹 앱 URL
+const API_URL = "https://script.google.com/macros/s/AKfycbxwtdkqmNF29HoF4SlcTTQm0_ZMrvNQe-JSBLcMobOVisxjb1QyNxb4kzVQhB2nwZqnzQ/exec"; // Google Apps Script 웹 앱 URL
 
 // 점수 제출 함수
 async function submitScore() {
@@ -9,12 +9,14 @@ async function submitScore() {
 
     let response = await fetch(API_URL, {
         method: "POST",
-        mode: "cors",  // CORS 허용 모드 추가
-        body: JSON.stringify({ username, score }),
-        headers: { "Content-Type": "application/json" }
+        mode: "no-cors",  // CORS 정책을 우회하기 위해 "no-cors" 설정
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, score })
+        
     })
-    .then(response => response.text())
-    .then(data => console.log("Server response:", data))
+    .then(response => console.log("Server response:", response))
     .catch(error => console.error("Error:", error));
 
     if (response.ok) {
