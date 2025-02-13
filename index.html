@@ -84,12 +84,11 @@
             background-color: #ffffff;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 28px; /* 숫자 크기 UP! */
+            font-size: 28px;
             font-weight: bold;
             color: #333;
             cursor: pointer;
             user-select: none;
-            line-height: 1; /* 줄 간격 최소화 (세로로 정렬될 때 숫자가 더 커보이도록) */
         }
 
         .cell.selected {
@@ -293,7 +292,7 @@
             <ul id="leaderboard"></ul>
         </div>
     </div>
-    <div class="version" style="margin-top: 20px;">v.0.0.7</div>
+    <div class="version" style="margin-top: 20px;">v.0.0.8</div>
 
     <script>
         const rows = 10;
@@ -537,6 +536,7 @@
 
         generateGameBoard();
     </script>
+    <script src="game.js"></script>
 </body>
 
 </html>
