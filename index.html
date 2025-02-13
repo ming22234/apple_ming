@@ -330,70 +330,55 @@
         });
 
 
-        const bgmAudio = new Audio('bgm.mp3'); 
-        bgmAudio.loop = true; // BGM 반복 재생 설정
-        let isBgmPlaying = false; // 🎵 기본 상태: 음악 꺼짐
-        
         const bgmButton = document.getElementById('bgm-button');
         const bgmCanvas = document.getElementById('bgm-canvas');
         const bgmCtx = bgmCanvas.getContext('2d');
-        
-        // 🎵 BGM 아이콘 상태 변경 함수
+
+        let isBgmPlaying = false; // BGM 재생 상태 변수
+        const bgmAudio = new Audio('bgm.mp3'); // BGM 파일 경로
+        bgmAudio.loop = true; // BGM 반복 재생 설정
+
+        document.addEventListener("click", function() {
+            if (bgmAudio.paused) {
+                bgmAudio.play().catch(error => console.log("Autoplay blocked:", error));
+            }
+        });
+
+
         function drawBgmIcon(isPlaying) {
             bgmCtx.clearRect(0, 0, bgmCanvas.width, bgmCanvas.height);
-            bgmCtx.fillStyle = 'black';
-        
-            if (isPlaying) {
-                // 🔊 스피커 아이콘 (BGM 재생 중)
-                bgmCtx.beginPath();
-                bgmCtx.moveTo(20, 20);
-                bgmCtx.lineTo(40, 10);
-                bgmCtx.lineTo(40, 50);
-                bgmCtx.lineTo(20, 40);
-                bgmCtx.closePath();
-                bgmCtx.fill();
-            } else {
-                // ❌ X 표시 (BGM 꺼짐)
-                bgmCtx.strokeStyle = 'red';
+            bgmCtx.fillStyle = isPlaying? 'black': 'red'; // BGM 재생 상태에 따라 색상 변경
+            // BGM 아이콘 그리기 (스피커 모양)
+            bgmCtx.beginPath();
+            bgmCtx.moveTo(50, 30);
+            bgmCtx.lineTo(20, 10);
+            bgmCtx.lineTo(20, 50);
+            bgmCtx.lineTo(50, 30);
+            bgmCtx.closePath();
+            bgmCtx.fill();
+            // 음소거 시 X 표시 추가
+            if (!isPlaying) {
+                bgmCtx.strokeStyle = 'white';
                 bgmCtx.lineWidth = 5;
                 bgmCtx.beginPath();
-                bgmCtx.moveTo(20, 20);
-                bgmCtx.lineTo(50, 50);
-                bgmCtx.moveTo(50, 20);
-                bgmCtx.lineTo(20, 50);
+                bgmCtx.moveTo(25, 15);
+                bgmCtx.lineTo(45, 35);
+                bgmCtx.moveTo(45, 15);
+                bgmCtx.lineTo(25, 35);
                 bgmCtx.stroke();
             }
         }
-        
-        // 🎮 Start 버튼을 누르면 자동으로 BGM 시작
-        const startButton = document.getElementById('start-button');
-        startButton.addEventListener('click', () => {
-            startButton.style.display = 'none';
-            gameContainer.style.visibility = 'visible';
-            pauseButton.style.visibility = 'visible';
-            bgmButton.style.visibility = 'visible'; // BGM 버튼 보이기
-            startTimer();
-        
-            if (!isBgmPlaying) {
-                bgmAudio.play().catch(error => console.log("BGM 자동 재생 실패:", error));
-                isBgmPlaying = true;
-                drawBgmIcon(isBgmPlaying);
-            }
-        });
-        
-        // 🎵 BGM 버튼을 누르면 재생/일시 정지 기능 추가
-        bgmButton.addEventListener('click', () => {
-            isBgmPlaying = !isBgmPlaying; // 상태 토글
-            if (isBgmPlaying) {
-                bgmAudio.play();
-            } else {
-                bgmAudio.pause();
-            }
-            drawBgmIcon(isBgmPlaying); // 아이콘 업데이트
-        });
-        
-        // 초기 아이콘 설정 (BGM 꺼진 상태)
         drawBgmIcon(isBgmPlaying);
+
+        bgmButton.addEventListener('click', () => {
+            isBgmPlaying =!isBgmPlaying; // BGM 재생 상태 토글
+            if (isBgmPlaying) {
+                bgmAudio.play(); // BGM 재생
+            } else {
+                bgmAudio.pause(); // BGM 일시 정지
+            }
+            drawBgmIcon(isBgmPlaying); // BGM 아이콘 업데이트
+        });
 
 
         const pauseOverlay = document.getElementById('pause-overlay');
